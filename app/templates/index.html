@@ -1,0 +1,20 @@
+<!-- Ride booking home page will be added here. -->
+{% extends "base.html" %}{% block title %}Đặt Xe{% endblock %}{% block content %}
+<h2>🚗 Yêu Cầu Đặt Chuyến Xe Mới</h2>
+<form id="rideForm">
+    <div class="form-group"><label>Tên hành khách:</label><input type="text" id="passenger_name" value="{{ username }}" required></div>
+    <div class="form-group"><label>Điểm đón:</label><input type="text" id="pickup_location" placeholder="Nhập điểm đón..." required></div>
+    <div class="form-group"><label>Điểm đến:</label><input type="text" id="dropoff_location" placeholder="Nhập điểm đến..." required></div>
+    <button type="submit" class="btn-primary">Gửi Yêu Cầu Đặt Xe</button>
+</form>
+<script>
+document.getElementById('rideForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/rides', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passenger_name: document.getElementById('passenger_name').value, pickup_location: document.getElementById('pickup_location').value, dropoff_location: document.getElementById('dropoff_location').value })
+    });
+    if (res.ok) { alert("Đặt xe thành công!"); window.location.href = "{{ url_for('history') }}"; } else { alert("Lỗi đặt xe!"); }
+});
+</script>
+{% endblock %}

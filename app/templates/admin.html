@@ -1,0 +1,16 @@
+<!-- Admin page will be added here. -->
+{% extends "base.html" %}{% block title %}Quản Trị Admin{% endblock %}{% block content %}
+<h2>⚙️ Quản Lý Tất Cả Chuyến Xe (Admin)</h2>
+<table><thead><tr><th>Mã</th><th>Khách Hàng</th><th>Điểm Đón -> Đến</th><th>Trạng Thái</th></tr></thead>
+<tbody id="adminTable"><tr><td colspan="4" style="text-align: center;">Đang tải...</td></tr></tbody></table>
+<script>
+async function loadAdminRides() {
+    const res = await fetch('/api/rides'); const result = await res.json();
+    const tbody = document.getElementById('adminTable'); tbody.innerHTML = '';
+    if (result.data && result.data.length > 0) {
+        result.data.forEach(r => { tbody.innerHTML += `<tr><td>#${r.id}</td><td>${r.username}</td><td>${r.pickup_location} ➔ ${r.dropoff_location}</td><td><span class="badge">${r.status}</span></td></tr>`; });
+    } else { tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Không có dữ liệu</td></tr>'; }
+}
+loadAdminRides();
+</script>
+{% endblock %}

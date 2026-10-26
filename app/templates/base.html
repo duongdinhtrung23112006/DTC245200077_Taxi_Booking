@@ -1,0 +1,22 @@
+<!-- Shared application layout will be added here. -->
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8"><title>{% block title %}Taxi System{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body>
+    <nav class="navbar">
+        <div class="logo">🚕 TaxiBooking Pro</div>
+        <div class="nav-links">
+            {% if session.get('user_id') %}
+                <span>Xin chào, <b>{{ session.get('username') }}</b></span>
+                <a href="{{ url_for('index') }}">Đặt xe</a>
+                <a href="{{ url_for('history') }}">Lịch sử</a>
+                {% if session.get('role') == 'admin' %}<a href="{{ url_for('admin_dashboard') }}" style="color: #f1c40f;">Quản Trị</a>{% endif %}
+                <a href="{{ url_for('logout') }}">Đăng xuất</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Đăng nhập</a><a href="{{ url_for('register') }}">Đăng ký</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container">{% block content %}{% endblock %}</div>
+</body>
+</html>
