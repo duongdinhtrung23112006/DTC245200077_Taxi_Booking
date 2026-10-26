@@ -1,0 +1,47 @@
+# Đây là file cấu hình cốt lõi của Loki — một hệ thống lưu trữ và truy vấn log được thiết kế theo phong cách của Prometheus. 
+#Nó chịu trách nhiệm định nghĩa cách Loki lưu trữ các dòng log nhận được từ các container, cấu hình cổng giao tiếp, mạng lưới
+# lưu trữ tạm thời (boltdb-shipper) và thời gian lưu giữ log (retention period) để tránh làm đầy ổ cứng máy chủ.
+
+auth_enabled: false # Tắt tính năng xác thực đa người dùng (phù hợp cho môi trường chạy nội bộ hoặc đồ án)
+
+server:
+  http_listen_port: 3100 # Cổng mạng mà container Loki sẽ lắng nghe để nhận log đẩy lên (mặc định là cổng 3100)
+
+common:
+  path_prefix: /tmp/loki # Thư mục gốc tạm thời bên trong container dùng để lưu trữ dữ liệu log và chỉ mục
+  storage:
+    filesystem:
+      chunks_directory: /tmp/loki/chunks # Thư mục lưu các mảnh dữ liệu log thực tế
+      rules_directory: /tmp/loki/rules # Thư mục lưu các quy tắc cảnh báo liên quan đến log
+  replication_factor: 1 # Số lượng bản sao lưu trữ (đặt là 1 vì chạy duy nhất 1 node đơn lẻ)
+  ring:
+    instance_addr: 127.0.0.1 # Địa chỉ IP nội bộ của tiến trình trong mạng vòng (ring)
+    kvstore:
+      store: inmemory # Lưu trữ trạng thái ring trực tiếp trên bộ nhớ RAM
+
+schema_config:
+  configs:
+    - from: 2020-10-24 # Mốc thời gian bắt đầu áp dụng cấu hình schema này
+      store: boltdb-shipper # Sử dụng cơ sở dữ liệu BoltDB để quản lý các chỉ mục (index) log
+      object_store: filesystem # Lưu trữ các tệp log dạng file trực tiếp trên ổ cứng hệ thống
+      schema: v11 # Phiên bản cấu trúc schema của Loki
+      index:
+        prefix: index_
+        period: 24h # Thời gian tạo một chu kỳ index mới (mỗi 24 giờ tách một index riêng cho nhẹ)
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /tmp/loki/index # Thư mục chứa index đang hoạt động
+    shared_store: filesystem # Kiểu lưu trữ chia sẻ dùng chung filesystem
+
+limits_config:
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h # Từ chối các dòng log có mốc thời gian cũ hơn 7 ngày (168 giờ) để tiết kiệm dung lượng
+
+chunk_store_config:
+  max_look_back_period: 0s # Không giới hạn thời gian tìm kiếm ngược lại trong lịch sử log
+
+table_manager:
+  retention_deletes_enabled: true # Bật tính năng tự động xóa dữ liệu log cũ
+  retention_period: 168h # Thời gian lưu giữ log tối đa là 7 ngày (sau 7 ngày log cũ sẽ tự động bị xóa để giải phóng ổ cứng)

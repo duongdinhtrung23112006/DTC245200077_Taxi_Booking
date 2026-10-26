@@ -1,0 +1,23 @@
+# Đây là cấu hình của "công nhân" Promtail. Nhiệm vụ của nó là đứng ngầm trên máy chủ, liên tục đọc các luồng log 
+#do các container Docker sinh ra, dán nhãn (labels) phân loại chúng, rồi tự động đẩy (push) tập trung về kho chứa 
+#Loki để chúng ta dễ dàng tìm kiếm và tra cứu lỗi trên Grafana.
+
+server:
+  http_listen_port: 9080 # Cổng mạng để Promtail chạy dịch vụ nội bộ (cổng 9080)
+  grpc_listen_port: 0    # Tắt cổng gRPC bằng cách gán bằng 0 (không cần dùng tới trong mô hình này)
+
+positions:
+  filename: /tmp/positions.yaml # File lưu vết vị trí dòng log cuối cùng Promtail đã đọc (giúp không bị đọc trùng lặp log khi container bị restart)
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push # Địa chỉ đích mà Promtail sẽ đẩy toàn bộ log thu thập được về (gửi tới container Loki ở cổng 3100)
+
+scrape_configs:
+  - job_name: docker                      # Tên công việc đi cào log từ các container Docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock # Kết nối trực tiếp vào Docker socket của máy chủ để tự động phát hiện các container đang chạy
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name'] # Lấy nhãn là tên của container Docker
+        target_label: 'container'                       # Đổi tên nhãn đó thành 'container' trong hệ thống log của Loki
+      - source_labels: ['__meta_docker_container_log_stream'] # Lấy nhãn phân loại luồng log (stdout hoặc stderr)
+        target_label: 'stream'                                # Đổi thành nhãn 'stream'
