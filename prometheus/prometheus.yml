@@ -1,0 +1,16 @@
+# Đây là bộ não của hệ thống giám sát Prometheus. Nó định nghĩa tần suất cào dữ liệu (scrape interval) 
+#và danh sách các mục tiêu (targets) mà Prometheus cần kết nối định kỳ để thu thập các chỉ số về hiệu suất, 
+#tài nguyên CPU, RAM, mạng của các container hoặc ứng dụng.
+
+global:
+  scrape_interval: 15s # Định nghĩa khoảng thời gian Prometheus sẽ đi cào metric một lần (cứ mỗi 15 giây)
+  evaluation_interval: 15s # Khoảng thời gian để đánh giá lại các quy tắc cảnh báo (alerting rules)
+
+scrape_configs:
+  - job_name: 'prometheus' # Tên công việc giám sát chính bản thân Prometheus
+    static_configs:
+      - targets: ['localhost:9090'] # Địa chỉ endpoint để Prometheus tự cào metric của chính nó
+
+  - job_name: 'taxi-web-app' # Tên công việc giám sát ứng dụng Flask của chúng ta
+    static_configs:
+      - targets: ['web:5000'] # Trỏ tới container web app chạy ở cổng 5000 để thu thập metric ứng dụng

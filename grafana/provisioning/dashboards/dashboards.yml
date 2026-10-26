@@ -1,0 +1,15 @@
+# Đây là file cấu hình giúp Grafana tự động quét và tải lên các file giao diện biểu đồ (Dashboards) có sẵn từ
+# thư mục lưu trữ nội bộ ngay khi khởi động,
+# giúp bạn không cần phải import thủ công từng file JSON biểu đồ giám sát mỗi lần dựng lại hệ thống.
+
+apiVersion: 1 # Phiên bản cú pháp cấu hình provisioning của Grafana
+
+providers:
+  - name: 'Default'           # Tên định danh của nhà cung cấp dashboard
+    orgId: 1                  # ID tổ chức mặc định trên Grafana
+    folder: ''                # Thư mục chứa dashboard trên giao diện (để trống nghĩa là thư mục gốc)
+    type: file                # Loại nguồn cung cấp là từ các file lưu trong thư mục ổ cứng
+    disableDeletion: false    # Cho phép xóa dashboard nếu cần
+    editable: true            # Cho phép chỉnh sửa dashboard trực tiếp trên giao diện
+    options:
+      path: /etc/grafana/provisioning/dashboards # Đường dẫn bên trong container trỏ tới thư mục chứa các file JSON dashboard

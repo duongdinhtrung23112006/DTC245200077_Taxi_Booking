@@ -1,0 +1,19 @@
+# Đây là file cấu hình tự động (Provisioning) giúp Grafana tự động nhận diện và kết nối sẵn với các nguồn dữ liệu như 
+#Prometheus (để xem biểu đồ metric CPU, RAM) và Loki (đes xem log hệ thống) ngay khi khởi động, mà bạn không cần 
+#phải vào giao diện web của Grafana để bấm tay cấu hình thủ công từng cái.
+
+apiVersion: 1 # Phiên bản cú pháp cấu hình provisioning của Grafana
+
+datasources:
+  - name: Prometheus         # Tên hiển thị của nguồn dữ liệu trên giao diện Grafana
+    type: prometheus         # Loại nguồn dữ liệu là Prometheus
+    access: proxy            # Kiểu truy cập qua proxy của Grafana
+    url: http://prometheus:9090 # Đường dẫn kết nối nội bộ tới container Prometheus trong mạng Docker
+    isDefault: true          # Đặt làm nguồn dữ liệu mặc định của hệ thống
+    editable: true           # Cho phép chỉnh sửa cấu hình này trực tiếp trên giao diện nếu cần
+
+  - name: Loki               # Tên hiển thị của nguồn dữ liệu thu thập log
+    type: loki               # Loại nguồn dữ liệu là Grafana Loki
+    access: proxy            # Kiểu truy cập qua proxy
+    url: http://loki:3100    # Đường dẫn kết nối nội bộ tới container Loki chạy ở cổng 3100
+    editable: true           # Cho phép chỉnh sửa trên giao diện
